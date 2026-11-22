@@ -1,120 +1,57 @@
-# Home Task 1 - Improved TSP Program
+# OSSD26-Lab2-2024112758
 
-This package completes the first homework from **Lecture 1: AI Intro**.
+哈尔滨工业大学《开源软件开发实践》Lab 2：开源软件开发协作流程 —— 学号 2024112758
 
-## Assignment implemented
+本仓库对应**实验内容 2**：新建仓库，并把**实验内容 1** 中建立的代码仓库（`Qtmenxia/OOSP-Lab2-2026`）
+的全部内容（包含代码修改成功后的文件）复制过来，用于与另一位同学相互 Fork、评审并接受 Pull Request。
 
-- Keep the lecture's TSP/simulated-annealing setup.
-- Generate 100 two-dimensional points with coordinates in `[0, 10)`.
-- Improve the route search by replacing the original simple swap with a **2-opt path reversal**.
-- Show that the improved method finds a shorter route.
+## 一、仓库内容
 
-## Included files
-
-| File | Purpose |
+| 文件 | 说明 |
 |---|---|
-| `homework1_minimal.py` | Minimal submission version that closely follows the code shown in the lecture and changes the candidate move to 2-opt. |
-| `tsp_homework1.py` | Extended, reproducible comparison of simple-swap SA and 2-opt SA. |
-| `TSP_Homework1.ipynb` | Ready-to-submit Jupyter notebook with explanation, execution output, and figures. |
-| `test_tsp.py` | Unit tests for city generation, route length, 2-opt delta, and improvement. |
-| `requirements.txt` | Python dependencies. |
-| `results/` | Generated plots and JSON result summary. |
+| `README.md` | 本说明文件（原仓库的 `# OSSDP-Lab2` 说明已扩写为完整说明） |
+| `Solution1.java` ~ `Solution20.java` | 实验内容 1 的 20 道编程题目原始实现；其中 **`Solution3.java` 是已修复的第 3 题** |
+| `L2024112758_3_Test.java` | 第 3 题（最大整除子集）的 JUnit 5 单元测试类，23 个用例，全部通过 |
 
-## Quick start
+## 二、第 3 题：最大整除子集
 
-```bash
-python -m pip install -r requirements.txt
-python tsp_homework1.py
-```
+给定一个由**无重复正整数**组成的集合 `nums`，找出其中最大的整除子集：子集中任意两个元素
+`(answer[i], answer[j])` 都满足 `answer[i] % answer[j] == 0` 或 `answer[j] % answer[i] == 0`；
+若存在多个有效解，返回任意一个即可。约束：`1 <= nums.length <= 1000`，`1 <= nums[i] <= 2 * 10^9`。
 
-The result images and `summary.json` will be written to `results/`.
+原始实现存在 6 处缺陷：
 
-For the minimal lecture-style version:
+| 编号 | 原始代码 | 问题 | 修复 |
+|---|---|---|---|
+| Bug 1 | `int len = nums.length - 1;` | 少算 1，最大元素永不参与计算；`n = 1` 越界、`n = 0` 负长度数组 | `int len = nums.length;` |
+| Bug 2 | `int maxVal = dp[0];` | 初始化语义错误，应记录元素值而非 `dp[0]` | `int maxVal = nums[0];` |
+| Bug 3 | `for (int j = 1; j < i; j++)` | 漏掉 `j = 0`，最小元素无法作为前驱 | `for (int j = 0; j < i; j++)` |
+| Bug 4 | `maxVal = i;` | 记录下标而非元素值，倒推时整除判断失真 | `maxVal = nums[i];` |
+| Bug 5 | 缺少空数组保护 | `NegativeArraySizeException` / `ArrayIndexOutOfBoundsException` | 入口判空返回空列表 |
+| Bug 6 | 缺少 `null` 保护 | 直接抛 `NullPointerException` | 抛出 `IllegalArgumentException` |
 
-```bash
-python homework1_minimal.py
-```
+实验内容 1 的 Pull Request：<https://github.com/HanchuanXu/OOSP-Lab2-2026/pull/13>
 
-## Reproduce the submitted result
-
-```bash
-python tsp_homework1.py \
-  --city-seed 42 \
-  --optimizer-seed 43 \
-  --iterations 100000 \
-  --metric euclidean
-```
-
-On the included deterministic run:
-
-- Initial route length: **542.756155**
-- Simple-swap simulated annealing: **139.081994**
-- Improved 2-opt simulated annealing: **80.533170**
-- Improvement over the simple-swap baseline: **42.10%**
-
-## Why 2-opt is better here
-
-The simple-swap move exchanges two city positions. This can disrupt several good route segments at once and often leaves crossing or unnecessarily long edges.
-
-A 2-opt move removes two route edges and reverses the segment between them. For a symmetric TSP, this preserves all internal segment distances and changes only two boundary edges. It is therefore well suited to removing route crossings and making focused local improvements.
-
-The extended implementation also keeps the **best route ever found**, rather than returning only the final accepted state.
-
-## Distance metric note
-
-- `homework1_minimal.py` preserves the distance function shown in the lecture.
-- `tsp_homework1.py` defaults to standard Euclidean distance.
-- To reproduce the lecture distance behavior in the extended program, run:
+## 三、如何运行第 3 题的单元测试
 
 ```bash
-python tsp_homework1.py --metric lecture
+# 1. 获取 JUnit 5 控制台启动器（也可以直接在 IDE 中使用 JUnit 5）
+curl -L -o junit-platform-console-standalone-1.11.4.jar \
+  https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar
+
+# 2. 只编译第 3 题与被测类（其余 Solution 文件中有多个同名 Solution 类，不能一起编译）
+javac -encoding UTF-8 -d out -cp junit-platform-console-standalone-1.11.4.jar \
+  Solution3.java L2024112758_3_Test.java
+
+# 3. 执行
+java -jar junit-platform-console-standalone-1.11.4.jar execute \
+  --class-path out --select-class L2024112758_3_Test --details=tree
 ```
 
-## Tests
+预期输出：`23 tests successful`、`0 tests failed`（同一套用例在修复前的原始代码上有 21 个用例失败）。
 
-```bash
-python -m unittest -v test_tsp.py
-```
+## 四、测试设计要点
 
-## Submission
-
-Upload or share either:
-
-1. `TSP_Homework1.ipynb`, or
-2. this complete folder/ZIP archive.
-
-Before submitting, replace the placeholder student information in the first notebook cell.
-
-## Git Version Control Practice
-
-This section records the Git operations
-performed during the OSSD26-Lab1 experiment.
-
-Git tracks changes through commits.
-Each commit records a snapshot of the project.
-The commit history helps developers review
-and manage different versions of the software.
-
-### Key Git Concepts
-
-- Branches support parallel development.
-- Merging integrates changes from different branches.
-- Remote repositories support collaboration and backup.
-
----
-
-# Lab 2 - 开源软件开发协作流程（2024112758）
-
-本仓库由 Lab 1 仓库 `Qtmenxia/OSSD26-Lab1-2024112758` 迁移而来（保留全部提交历史），
-并新增 Lab 2 的实验内容：
-
-| 目录 / 文件 | 说明 |
-|---|---|
-| `Lab2/Solution3.java` | 实验内容 1 第 3 题（最大整除子集）修复后的源文件 |
-| `Lab2/L2024112758_3_Test.java` | 第 3 题的 JUnit 5 单元测试类（23 个用例，全部通过） |
-| `Lab2/README.md` | 第 3 题的题目说明、缺陷清单与测试运行方式 |
-
-实验内容 1 的 Pull Request：
-https://github.com/HanchuanXu/OOSP-Lab2-2026/pull/13
-
-实验内容 3 的分析文档见实验报告（Lab2-2024112758.zip 内的 `reports/`）。
+- 五类用例：正常输入、边界值、非法/异常输入、特殊输入、回归测试（每个 Bug 至少一个回归用例）；
+- 由于答案不唯一，断言「合法性（元素互不相同、全部来自输入、两两整除）+ 最优性（长度等于独立暴力枚举基准）」；
+- `n <= 16` 时用位掩码暴力枚举给出与被测动态规划完全独立的最优长度基准，避免「用同一个算法验证自己」。
