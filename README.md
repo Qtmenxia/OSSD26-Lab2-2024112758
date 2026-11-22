@@ -100,3 +100,21 @@ and manage different versions of the software.
 - Branches support parallel development.
 - Merging integrates changes from different branches.
 - Remote repositories support collaboration and backup.
+
+---
+
+# Lab 2 - 开源软件开发协作流程（2024112758）
+
+本仓库由 Lab 1 仓库 `Qtmenxia/OSSD26-Lab1-2024112758` 迁移而来（保留全部提交历史），
+并新增 Lab 2 的实验内容：
+
+| 目录 / 文件 | 说明 |
+|---|---|
+| `Lab2/Solution3.java` | 实验内容 1 第 3 题（最大整除子集）修复后的源文件 |
+| `Lab2/L2024112758_3_Test.java` | 第 3 题的 JUnit 5 单元测试类（23 个用例，全部通过） |
+| `Lab2/README.md` | 第 3 题的题目说明、缺陷清单与测试运行方式 |
+
+实验内容 1 的 Pull Request：
+https://github.com/HanchuanXu/OOSP-Lab2-2026/pull/13
+
+实验内容 3 的分析文档见实验报告（Lab2-2024112758.zip 内的 `reports/`）。
